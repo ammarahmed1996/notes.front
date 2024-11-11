@@ -1,48 +1,55 @@
-import { useEffect, useState } from "react";
-import type { Schema } from "../amplify/data/resource";
-import { generateClient } from "aws-amplify/data";
-import { useAuthenticator } from '@aws-amplify/ui-react';
+import React, { useState, useEffect } from 'react';
+import api from './api';
+import NoteForm from './components/NoteForm';
+import NoteList from './components/NoteList';
+/*import type {Schema} from "../amplify/data/resource";
+import {generateClient} from "aws-amplify/data";
+import {useAuthenticator} from '@aws-amplify/ui-react';*/
 
-const client = generateClient<Schema>();
 
 function App() {
-  const [todos, setTodos] = useState<Array<Schema["Todo"]["type"]>>([]);
+    const [notes, setNotes] = useState([]);
+    const [selectedNote, setSelectedNote] = useState(null);
 
-  useEffect(() => {
-    client.models.Todo.observeQuery().subscribe({
-      next: (data) => setTodos([...data.items]),
-    });
-  }, []);
-    const { user,signOut } = useAuthenticator();
-    function deleteTodo(id: string) {
-        client.models.Todo.delete({ id })
-    }
-  function createTodo() {
-    client.models.Todo.create({ content: window.prompt("Todo content") });
-  }
+    // Fetch notes from backend
+    useEffect(() => {
+        const fetchNotes = async () => {
+            const response = await api.get('');
+            setNotes(response.data);
+        };
+        fetchNotes();
+    }, []);
 
-  return (
-      <main>
-          <h1>{user?.signInDetails?.loginId}'s todos</h1>
-          <button onClick={createTodo}>+ new</button>
-          <ul>
-              {todos.map((todo) => (
-                  <li
-                      onClick={() => deleteTodo(todo.id)}
-                      key={todo.id}>{todo.content}</li>
-              ))}
-          </ul>
-          <div>
-              🥳 App successfully hosted. Try creating a new todo.
-              <br/>
-              <a href="https://docs.amplify.aws/react/start/quickstart/#make-frontend-updates">
-                  Review next step of this tutorial.
-              </a>
-              <button onClick={signOut}>Sign out</button>
-          </div>
+    // Add a new note
+    const addNote = async (note) => {
+        const response = await api.post('', note);
+        setNotes([...notes, response.data]);
+    };
 
-      </main>
-  );
+    // Update an existing note
+    const updateNote = async (id, updatedNote) => {
+        const response = await api.put(`/${id}`, updatedNote);
+        setNotes(notes.map((note) => (note.id === id ? response.data : note)));
+    };
+
+    // Delete a note
+    const deleteNote = async (id) => {
+        await api.delete(`/${id}`);
+        setNotes(notes.filter((note) => note.id !== id));
+    };
+
+    return (
+        <div>
+            {/*<h1>{user?.signInDetails?.loginId}'s todos</h1>*/}
+
+            <h1>Notes Application</h1>
+            <NoteForm addNote={addNote} updateNote={updateNote} selectedNote={selectedNote}
+                      setSelectedNote={setSelectedNote}/>
+            <NoteList notes={notes} setSelectedNote={setSelectedNote} deleteNote={deleteNote}/>
+           {/* <button onClick={signOut}>Sign out</button>*/}
+        </div>
+    );
 }
 
 export default App;
+
