@@ -1,18 +1,26 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, ChangeEvent, FormEvent } from 'react';
+import { Note } from '../App';
 
-function NoteForm({ addNote, updateNote, selectedNote, setSelectedNote }) {
-    const [note, setNote] = useState({ title: '', content: '', author: '', createdDate: '' });
+interface NoteFormProps {
+    addNote: (note: Note) => void;
+    updateNote: (id: string, note: Note) => void;
+    selectedNote: Note | null;
+    setSelectedNote: (note: Note | null) => void;
+}
+
+function NoteForm({ addNote, updateNote, selectedNote, setSelectedNote }: NoteFormProps) {
+    const [note, setNote] = useState<Note>({ title: '', content: '', author: '', createdDate: '' });
 
     useEffect(() => {
         if (selectedNote) setNote(selectedNote);
     }, [selectedNote]);
 
-    const handleChange = (e) => {
+    const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setNote({ ...note, [name]: value });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
         if (note.id) {
             updateNote(note.id, note);

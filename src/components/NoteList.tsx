@@ -1,7 +1,13 @@
-import React from 'react';
 import NoteItem from './NoteItem';
+import { Note } from '../App';
 
-function NoteList({ notes, setSelectedNote, deleteNote }) {
+interface NoteListProps {
+    notes: Note[];
+    setSelectedNote: (note: Note) => void;
+    deleteNote: (id: string) => void;
+}
+
+function NoteList({ notes, setSelectedNote, deleteNote }: NoteListProps) {
     return (
         <div>
             {notes.map((note) => (

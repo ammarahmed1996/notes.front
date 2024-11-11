@@ -1,6 +1,12 @@
-import React from 'react';
+import { Note } from '../App';
 
-function NoteItem({ note, setSelectedNote, deleteNote }) {
+interface NoteItemProps {
+    note: Note;
+    setSelectedNote: (note: Note) => void;
+    deleteNote: (id: string) => void;
+}
+
+function NoteItem({ note, setSelectedNote, deleteNote }: NoteItemProps) {
     return (
         <div>
             <h3>{note.title}</h3>
@@ -8,7 +14,7 @@ function NoteItem({ note, setSelectedNote, deleteNote }) {
             <p><strong>Author:</strong> {note.author}</p>
             <p><strong>Created Date:</strong> {note.createdDate}</p>
             <button onClick={() => setSelectedNote(note)}>Edit</button>
-            <button onClick={() => deleteNote(note.id)}>Delete</button>
+            <button onClick={() => deleteNote(note.id || '')}>Delete</button>
         </div>
     );
 }
